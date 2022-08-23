@@ -5,52 +5,63 @@
 
 module Main where
 
-import Control.Monad (unless)
-import Display (withOpenGL, withWindow)
+import Control qualified
+import Display (withOpenGLWindow)
+import Entity (Entity (..))
 import Graphics.Rendering.OpenGL qualified as GL
+import Input qualified
+import Maths qualified
 import Model qualified
 import Renderer (prepare, render)
-import Shader qualified
-import Texture qualified
 import SDL qualified
+import Shader.Core qualified
+import Shader.Static qualified
+import Texture qualified
 
 main :: IO ()
-main = withWindow \window ->
-  withOpenGL window \_ -> do
-    program <- Shader.createWith
-      [ ( "position", GL.AttribLocation 0 ),
-        ( "textureCoords", GL.AttribLocation 1 )
-      ]
-      [ (GL.VertexShader, "shaders/static/shader.vert")
-      , (GL.FragmentShader, "shaders/static/shader.frag")
-      ]
+main = withOpenGLWindow \window _ -> do
+  program <- Shader.Static.create
 
-    model <- Model.create [ 0, 1, 3, 3, 1, 2 ]
+  model <- Model.create Model.Config
+    { Model.configIndices =
+        [ GL.Vertex3 0 1 3
+        , GL.Vertex3 3 1 2
+        ]
+
+    , Model.configPositions =
         [ GL.Vertex3 (-0.5) ( 0.5) 0
         , GL.Vertex3 (-0.5) (-0.5) 0
         , GL.Vertex3 ( 0.5) (-0.5) 0
         , GL.Vertex3 ( 0.5) ( 0.5) 0
         ]
+
+    , Model.configTextureCoords =
         [ GL.Vertex2 0 0
         , GL.Vertex2 0 1
         , GL.Vertex2 1 1
         , GL.Vertex2 1 0
         ]
+    }
 
-    texture <- Texture.loadTexture("textures/beef.png")
+  texture <- Texture.loadTexture("textures/beef.png")
 
-    loopUntilUserQuits \_events -> do
-      prepare
+  let update :: SDL.Event -> Float -> Float
+      update event current
+        | Input.isPressed SDL.KeycodeLeft  event = current - 0.1
+        | Input.isPressed SDL.KeycodeRight event = current + 0.1
+        | otherwise = current
 
-      Shader.withProgram program do
-        render texture model
+  Control.loop 0 update \state -> do
+    prepare
 
-      SDL.glSwapWindow window
+    let entity :: Entity
+        entity =
+          Entity
+            { entityModel     = model
+            , entityTransform = Maths.translate (Maths.V3 state 0 0)
+            }
 
-loopUntilUserQuits :: ([SDL.Event] -> IO ()) -> IO ()
-loopUntilUserQuits callback = do
-  events <- SDL.pollEvents
+    Shader.Core.with program do
+      render texture entity program
 
-  unless (SDL.QuitEvent `elem` map SDL.eventPayload events) do
-    callback events
-    loopUntilUserQuits callback
+    SDL.glSwapWindow window

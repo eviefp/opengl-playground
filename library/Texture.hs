@@ -2,25 +2,26 @@
 {-# LANGUAGE LambdaCase #-}
 
 -- |
--- Texture operations.
+-- Operations for handling textures.
 module Texture where
 
-import Graphics.GLUtil qualified as Utilities
+import Graphics.GLUtil (readTexture, texture2DWrap)
 import Graphics.Rendering.OpenGL qualified as GL
 import System.IO (hPutStrLn, stderr)
 import System.Exit (exitFailure)
+import Text.Printf (hPrintf)
 
 -- | Load a texture from disk.
 loadTexture :: FilePath -> IO GL.TextureObject
-loadTexture path = Utilities.readTexture path >>= \case
+loadTexture path = readTexture path >>= \case
   Right texture -> do
     GL.textureFilter GL.Texture2D GL.$= ((GL.Linear', Nothing), GL.Linear')
-    Utilities.texture2DWrap GL.$= (GL.Repeated, GL.ClampToEdge)
+    texture2DWrap GL.$= (GL.Repeated, GL.ClampToEdge)
 
     pure texture
 
   Left message -> do
-    hPutStrLn stderr ("Loading texture " <> path)
+    hPrintf stderr "Error while loading texture '%s'" path
     hPutStrLn stderr message
 
     exitFailure

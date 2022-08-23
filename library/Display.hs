@@ -60,3 +60,9 @@ withOpenGL window = bracket setup SDL.glDeleteContext
       SDL.glMakeCurrent window context
 
       pure context
+
+-- | A combination of 'withWindow' and 'withOpenGL' for what will probably be
+-- the most common use case.
+withOpenGLWindow :: (SDL.Window -> SDL.GLContext -> IO x) -> IO x
+withOpenGLWindow action = withWindow \window ->
+  withOpenGL window \context -> action window context

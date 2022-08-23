@@ -1,6 +1,6 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE ImportQualifiedPost #-}
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneKindSignatures #-}
 {-# LANGUAGE TypeApplications #-}
@@ -9,6 +9,7 @@
 -- Information for identifying OpenGL models and meshes.
 module Model where
 
+import Control.Exception (bracket)
 import Data.Kind (Type)
 import Foreign.Marshal.Array (withArray)
 import Foreign.Ptr (nullPtr)
@@ -25,27 +26,38 @@ data Model =
     }
   deriving Show
 
--- | Create a model from a list of indices and positions.
-create :: [GL.GLint] -> [GL.Vertex3 GL.GLfloat] -> [GL.Vertex2 GL.GLfloat] -> IO Model
-create indices positions textureCoordinates = do
+-- | Configuration for creating models. Models are defined by the vertex
+-- positions, texture coordinates for each of those positions, and triples of
+-- indices into those positions (determining how the triangles are made).
+type Config :: Type
+data Config =
+  Config
+    { configIndices       :: [GL.Vertex3 GL.GLint  ]
+    , configPositions     :: [GL.Vertex3 GL.GLfloat]
+    , configTextureCoords :: [GL.Vertex2 GL.GLfloat]
+    }
+
+-- | Create a model from a list of position vertices and the contents of an
+-- index buffer. If texture coordinates are present, also bind the texture.
+create :: Config -> IO Model
+create Config{..} = do
   vertexArrayObjectName <- GL.genObjectName
-  GL.bindVertexArrayObject GL.$= Just vertexArrayObjectName
 
-  indexBuffer <- GL.genObjectName
+  withVAO vertexArrayObjectName do
+    indexBuffer <- GL.genObjectName
 
-  GL.bindBuffer GL.ElementArrayBuffer GL.$= Just indexBuffer
-  bindToBuffer GL.ElementArrayBuffer GL.StaticDraw indices
+    GL.bindBuffer GL.ElementArrayBuffer GL.$= Just indexBuffer
+    bindToBuffer GL.ElementArrayBuffer GL.StaticDraw configIndices
 
-  storeInVAO (GL.AttribLocation 0) 3 positions
-  storeInVAO (GL.AttribLocation 1) 2 textureCoordinates
+    storeInVAO (GL.AttribLocation 0) 3 configPositions
+    storeInVAO (GL.AttribLocation 1) 2 configTextureCoords
 
-  GL.bindVertexArrayObject GL.$= Nothing
   GL.bindBuffer GL.ElementArrayBuffer GL.$= Nothing
   GL.bindBuffer GL.ArrayBuffer GL.$= Nothing
 
   pure Model
     { modelIdentifier = vertexArrayObjectName
-    , modelVertices   = fromIntegral (length indices)
+    , modelVertices   = fromIntegral (length configIndices * 3)
     }
 
 -- | Bind an array of data to the given buffer for the given purpose.
@@ -56,6 +68,7 @@ bindToBuffer target usage (xs :: [x]) = withArray xs \pointer ->
     size :: Int
     size = sizeOf @x undefined * length xs
 
+-- | Store the given information in the current VAO.
 storeInVAO :: Storable x => GL.AttribLocation -> GL.NumComponents -> [x] -> IO ()
 storeInVAO location coordinateSize xs = do
   buffer <- GL.genObjectName
@@ -69,3 +82,13 @@ storeInVAO location coordinateSize xs = do
     )
 
   GL.bindBuffer GL.ArrayBuffer GL.$= Nothing
+
+-- | Perform an action while the given VAO is bound.
+withVAO :: GL.VertexArrayObject -> IO x -> IO x
+withVAO vertexArrayObjectName = bracket setup (const teardown) . const
+  where
+    setup :: IO ()
+    setup = GL.bindVertexArrayObject GL.$= Just vertexArrayObjectName
+
+    teardown :: IO ()
+    teardown = GL.bindVertexArrayObject GL.$= Nothing

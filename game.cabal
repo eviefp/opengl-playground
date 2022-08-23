@@ -7,15 +7,22 @@ maintainer: i.am.tom.harding@gmail.com
 category: Game
 
 library
-    exposed-modules: Display
+    exposed-modules: Control
+                     Display
+                     Entity
+                     Input
+                     Maths
                      Model
                      Renderer
-                     Shader
+                     Shader.Core
+                     Shader.Static
                      Texture
     build-depends: base ^>= 4.14,
                    bytestring ^>= 0.10,
                    containers ^>= 0.6,
                    GLUtil ^>= 0.10,
+                   lens ^>= 5.2,
+                   linear ^>= 1.21,
                    OpenGL ^>= 3.0,
                    sdl2 ^>= 2.5,
                    vector ^>= 0.12
