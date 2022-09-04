@@ -6,13 +6,18 @@ module Entity where
 
 import Data.Kind (Type)
 import Graphics.Rendering.OpenGL qualified as GL
-import Linear.Matrix qualified as Matrix
 import Model (Model)
+import SDL qualified
 
--- | A container for a model and a position.
+-- | A container for a model, a texture, and the components of a transformation
+-- matrix. This is the data required to render a model to the screen.
 type Entity :: Type
 data Entity
   = Entity
-      { entityModel     :: Model
-      , entityTransform :: Matrix.M44 GL.GLfloat
+      { model     :: Model
+      , texture   :: GL.TextureObject
+      , translate :: SDL.V3 Float
+      , rotate    :: SDL.Quaternion Float
+      , scale     :: Float
       }
+  deriving (Eq, Ord, Show)

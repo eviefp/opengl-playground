@@ -18,10 +18,11 @@ loadTexture path = readTexture path >>= \case
     GL.textureFilter GL.Texture2D GL.$= ((GL.Linear', Nothing), GL.Linear')
     texture2DWrap GL.$= (GL.Repeated, GL.ClampToEdge)
 
+    hPrintf stderr "Loaded texture '%s'\n" path
     pure texture
 
   Left message -> do
-    hPrintf stderr "Error while loading texture '%s'" path
+    hPrintf stderr "Error while loading texture '%s'\n" path
     hPutStrLn stderr message
 
     exitFailure

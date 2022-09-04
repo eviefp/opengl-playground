@@ -1,49 +1,53 @@
+{-# LANGUAGE ApplicativeDo #-}
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE ImportQualifiedPost #-}
-{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- |
--- A static shader represents objects that are rendered entirely statically.
--- They can be transformed, but are otherwise stationary.
+-- A shader for rendering plain, static objects.
 module Shader.Static where
 
 import Data.Kind (Type)
 import Graphics.Rendering.OpenGL qualified as GL
-import Shader.Core qualified as Shader
+import Maths qualified
+import Shader.Program (Shader)
+import Shader.Program qualified as Shader
+import SDL qualified
 
--- | A shader for rendering static elements.
-type StaticShader :: Type
-data StaticShader
-  = StaticShader
-      { staticShaderProgram  :: GL.Program
-      , transformationMatrix :: GL.StateVar (GL.GLmatrix GL.GLfloat)
+-- | A static shader's interface. At the moment, we can control the position of
+-- its vertices, the associated texture coordinates, and the matrices that
+-- govern its global, camera and local coordinate transformations.
+type Static :: Type
+data Static
+  = Static
+      { position      :: GL.AttribLocation
+      , textureCoords :: GL.AttribLocation
+
+      , projectionMatrix     :: GL.UniformLocation
+      , transformationMatrix :: GL.UniformLocation
+      , viewMatrix           :: GL.UniformLocation
       }
 
-instance Shader.HasProgram StaticShader where
-  getProgram = staticShaderProgram
+-- | Create a 'Static' shader.
+static :: IO (Shader Static)
+static = do
+  shader <- Shader.create do
+    Shader.shader GL.VertexShader   "shaders/static/shader.vert"
+    Shader.shader GL.FragmentShader "shaders/static/shader.frag"
 
--- | Create a static element shader.
-create :: IO StaticShader
-create = do
-  staticShaderProgram <- Shader.create
-    Shader.Config
-      { configAttributes =
-          [ ( "position", GL.AttribLocation 0 ),
-            ( "textureCoords", GL.AttribLocation 1 )
-          ]
+    position      <- Shader.attribute 0 "position"
+    textureCoords <- Shader.attribute 1 "textureCoords"
 
-      , configShaders =
-          [ (GL.VertexShader, "shaders/static/shader.vert")
-          , (GL.FragmentShader, "shaders/static/shader.frag")
-          ]
-      }
+    projectionMatrix     <- Shader.uniform "projectionMatrix"
+    transformationMatrix <- Shader.uniform "transformationMatrix"
+    viewMatrix           <- Shader.uniform "viewMatrix"
 
-  transformationMatrixLocation <- GL.get do
-    GL.uniformLocation staticShaderProgram "transformationMatrix"
+    pure Static{..}
 
-  pure StaticShader
-    { staticShaderProgram  = staticShaderProgram
-    , transformationMatrix = GL.uniform (transformationMatrixLocation)
-    }
+  Shader.withProgram shader do
+    projection <- Maths.toGLmatrix @GL.GLfloat (SDL.perspective 0.8 1 0.1 1000)
+    GL.uniform (projectionMatrix (Shader.interface shader)) GL.$= projection
+
+  pure shader

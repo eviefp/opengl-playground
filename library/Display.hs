@@ -9,7 +9,6 @@ module Display where
 
 import Control.Exception (bracket)
 import Control.Monad (unless)
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import SDL qualified
 
 -- | Run an operation for the lifetime of a window.
@@ -28,7 +27,7 @@ withWindow callback = do
         renderQuality <- SDL.get SDL.HintRenderScaleQuality
 
         unless (renderQuality == SDL.ScaleLinear) do
-          liftIO $ putStrLn "Warning: Linear texture filtering not enabled!"
+          putStrLn "Warning: Linear texture filtering not enabled!"
 
         SDL.createWindow "Visualiser"
           SDL.defaultWindow
@@ -63,6 +62,6 @@ withOpenGL window = bracket setup SDL.glDeleteContext
 
 -- | A combination of 'withWindow' and 'withOpenGL' for what will probably be
 -- the most common use case.
-withOpenGLWindow :: (SDL.Window -> SDL.GLContext -> IO x) -> IO x
+withOpenGLWindow :: (SDL.Window -> IO x) -> IO x
 withOpenGLWindow action = withWindow \window ->
-  withOpenGL window \context -> action window context
+  withOpenGL window \_ -> action window

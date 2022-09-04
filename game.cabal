@@ -1,31 +1,31 @@
 cabal-version: 2.4
 name: game
 version: 0.1.0.0
-license: NONE
+license: MIT
 author: Tom Harding
 maintainer: i.am.tom.harding@gmail.com
 category: Game
 
 library
-    exposed-modules: Control
+    exposed-modules: Camera
+                     Control
                      Display
                      Entity
-                     Input
                      Maths
                      Model
                      Renderer
-                     Shader.Core
+                     Shader
+                     Shader.Program
                      Shader.Static
                      Texture
     build-depends: base ^>= 4.14,
                    bytestring ^>= 0.10,
                    containers ^>= 0.6,
+                   free ^>= 5.1,
                    GLUtil ^>= 0.10,
                    lens ^>= 5.2,
-                   linear ^>= 1.21,
                    OpenGL ^>= 3.0,
-                   sdl2 ^>= 2.5,
-                   vector ^>= 0.12
+                   sdl2 ^>= 2.5
     ghc-options: -Wall -Wextra
     hs-source-dirs: library
     default-language: Haskell2010
@@ -34,12 +34,9 @@ executable game
     main-is: Main.hs
     build-depends:
         base,
-        bytestring,
-        containers,
         game,
         OpenGL,
-        sdl2,
-        vector
+        sdl2
     hs-source-dirs: executable
     default-language: Haskell2010
     ghc-options: -Wall -Wextra

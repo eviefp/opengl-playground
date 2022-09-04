@@ -24,7 +24,7 @@ data Model =
     { modelIdentifier :: GL.VertexArrayObject
     , modelVertices   :: GL.NumArrayIndices
     }
-  deriving Show
+  deriving (Eq, Ord, Show)
 
 -- | Configuration for creating models. Models are defined by the vertex
 -- positions, texture coordinates for each of those positions, and triples of
@@ -43,14 +43,14 @@ create :: Config -> IO Model
 create Config{..} = do
   vertexArrayObjectName <- GL.genObjectName
 
-  withVAO vertexArrayObjectName do
+  withVertexArrayObject vertexArrayObjectName do
     indexBuffer <- GL.genObjectName
 
     GL.bindBuffer GL.ElementArrayBuffer GL.$= Just indexBuffer
     bindToBuffer GL.ElementArrayBuffer GL.StaticDraw configIndices
 
-    storeInVAO (GL.AttribLocation 0) 3 configPositions
-    storeInVAO (GL.AttribLocation 1) 2 configTextureCoords
+    storeInVertexArrayObject (GL.AttribLocation 0) 3 configPositions
+    storeInVertexArrayObject (GL.AttribLocation 1) 2 configTextureCoords
 
   GL.bindBuffer GL.ElementArrayBuffer GL.$= Nothing
   GL.bindBuffer GL.ArrayBuffer GL.$= Nothing
@@ -69,8 +69,8 @@ bindToBuffer target usage (xs :: [x]) = withArray xs \pointer ->
     size = sizeOf @x undefined * length xs
 
 -- | Store the given information in the current VAO.
-storeInVAO :: Storable x => GL.AttribLocation -> GL.NumComponents -> [x] -> IO ()
-storeInVAO location coordinateSize xs = do
+storeInVertexArrayObject :: Storable x => GL.AttribLocation -> GL.NumComponents -> [x] -> IO ()
+storeInVertexArrayObject location coordinateSize xs = do
   buffer <- GL.genObjectName
 
   GL.bindBuffer GL.ArrayBuffer GL.$= Just buffer
@@ -83,12 +83,12 @@ storeInVAO location coordinateSize xs = do
 
   GL.bindBuffer GL.ArrayBuffer GL.$= Nothing
 
--- | Perform an action while the given VAO is bound.
-withVAO :: GL.VertexArrayObject -> IO x -> IO x
-withVAO vertexArrayObjectName = bracket setup (const teardown) . const
+-- | Run a computation with the given vertex array object bound.
+withVertexArrayObject :: GL.VertexArrayObject -> IO x -> IO x
+withVertexArrayObject name action = bracket setup (const teardown) \_ -> action
   where
     setup :: IO ()
-    setup = GL.bindVertexArrayObject GL.$= Just vertexArrayObjectName
+    setup = GL.bindVertexArrayObject GL.$= Just name
 
     teardown :: IO ()
     teardown = GL.bindVertexArrayObject GL.$= Nothing
