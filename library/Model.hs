@@ -15,6 +15,7 @@ import Foreign.Marshal.Array (withArray)
 import Foreign.Ptr (nullPtr)
 import Foreign.Storable (Storable, sizeOf)
 import Graphics.Rendering.OpenGL qualified as GL
+import SDL qualified
 
 -- | Once we've bound all the information to the VAO, the information we have
 -- to store boils down to the VAO name and the number of vertices in the mesh.
@@ -32,9 +33,9 @@ data Model =
 type Config :: Type
 data Config =
   Config
-    { configIndices       :: [GL.Vertex3 GL.GLint  ]
-    , configPositions     :: [GL.Vertex3 GL.GLfloat]
-    , configTextureCoords :: [GL.Vertex2 GL.GLfloat]
+    { configIndices       :: [SDL.V3 Int  ]
+    , configPositions     :: [SDL.V3 Float]
+    , configTextureCoords :: [SDL.V2 Float]
     }
 
 -- | Create a model from a list of position vertices and the contents of an
