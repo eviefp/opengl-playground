@@ -33,9 +33,9 @@ data Model =
 type Config :: Type
 data Config =
   Config
-    { configIndices       :: [SDL.V3 Int  ]
-    , configPositions     :: [SDL.V3 Float]
-    , configTextureCoords :: [SDL.V2 Float]
+    { configIndices       :: [SDL.V3 GL.GLint  ]
+    , configPositions     :: [SDL.V3 GL.GLfloat]
+    , configTextureCoords :: [SDL.V2 GL.GLfloat]
     }
 
 -- | Create a model from a list of position vertices and the contents of an

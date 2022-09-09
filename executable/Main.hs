@@ -71,82 +71,82 @@ main = withOpenGLWindow \window -> do
 beef :: IO Model.Model
 beef = Model.create Model.Config
   { Model.configIndices = -- Which positions make up each triangle?
-      [ GL.Vertex3 0  1  3
-      , GL.Vertex3 3  1  2
-      , GL.Vertex3 4  5  7
-      , GL.Vertex3 7  5  6
-      , GL.Vertex3 8  9  11
-      , GL.Vertex3 11 9  10
-      , GL.Vertex3 12 13 15
-      , GL.Vertex3 15 13 14
-      , GL.Vertex3 16 17 19
-      , GL.Vertex3 19 17 18
-      , GL.Vertex3 20 21 23
-      , GL.Vertex3 23 21 22
+      [ SDL.V3 0  1  3
+      , SDL.V3 3  1  2
+      , SDL.V3 4  5  7
+      , SDL.V3 7  5  6
+      , SDL.V3 8  9  11
+      , SDL.V3 11 9  10
+      , SDL.V3 12 13 15
+      , SDL.V3 15 13 14
+      , SDL.V3 16 17 19
+      , SDL.V3 19 17 18
+      , SDL.V3 20 21 23
+      , SDL.V3 23 21 22
       ]
 
   , Model.configPositions = -- A list of vertex positions.
-      [ GL.Vertex3 (-0.5) ( 0.5) (-0.5)
-      , GL.Vertex3 (-0.5) (-0.5) (-0.5)
-      , GL.Vertex3 ( 0.5) (-0.5) (-0.5)
-      , GL.Vertex3 ( 0.5) ( 0.5) (-0.5)
+      [ SDL.V3 (-0.5) ( 0.5) (-0.5)
+      , SDL.V3 (-0.5) (-0.5) (-0.5)
+      , SDL.V3 ( 0.5) (-0.5) (-0.5)
+      , SDL.V3 ( 0.5) ( 0.5) (-0.5)
 
-      , GL.Vertex3 (-0.5) 0.5 0.5
-      , GL.Vertex3 (-0.5) (-0.5) 0.5
-      , GL.Vertex3 0.5 (-0.5) 0.5
-      , GL.Vertex3 0.5 0.5 0.5
+      , SDL.V3 (-0.5) 0.5 0.5
+      , SDL.V3 (-0.5) (-0.5) 0.5
+      , SDL.V3 0.5 (-0.5) 0.5
+      , SDL.V3 0.5 0.5 0.5
 
-      , GL.Vertex3 0.5 0.5 (-0.5)
-      , GL.Vertex3 0.5 (-0.5) (-0.5)
-      , GL.Vertex3 0.5 (-0.5) 0.5
-      , GL.Vertex3 0.5 0.5 (0.5)
+      , SDL.V3 0.5 0.5 (-0.5)
+      , SDL.V3 0.5 (-0.5) (-0.5)
+      , SDL.V3 0.5 (-0.5) 0.5
+      , SDL.V3 0.5 0.5 (0.5)
 
 
-      , GL.Vertex3 (-0.5) 0.5 (-0.5)
-      , GL.Vertex3 (-0.5) (-0.5) (-0.5)
-      , GL.Vertex3 (-0.5) (-0.5) 0.5
-      , GL.Vertex3 (-0.5) 0.5 0.5
+      , SDL.V3 (-0.5) 0.5 (-0.5)
+      , SDL.V3 (-0.5) (-0.5) (-0.5)
+      , SDL.V3 (-0.5) (-0.5) 0.5
+      , SDL.V3 (-0.5) 0.5 0.5
 
-      , GL.Vertex3 (-0.5) 0.5 0.5
-      , GL.Vertex3 (-0.5) 0.5 (-0.5)
-      , GL.Vertex3 0.5 0.5 (-0.5)
-      , GL.Vertex3 0.5 0.5 0.5
+      , SDL.V3 (-0.5) 0.5 0.5
+      , SDL.V3 (-0.5) 0.5 (-0.5)
+      , SDL.V3 0.5 0.5 (-0.5)
+      , SDL.V3 0.5 0.5 0.5
 
-      , GL.Vertex3 (-0.5) (-0.5) 0.5
-      , GL.Vertex3 (-0.5) (-0.5) (-0.5)
-      , GL.Vertex3 0.5 (-0.5) (-0.5)
-      , GL.Vertex3 0.5 (-0.5) 0.5
+      , SDL.V3 (-0.5) (-0.5) 0.5
+      , SDL.V3 (-0.5) (-0.5) (-0.5)
+      , SDL.V3 0.5 (-0.5) (-0.5)
+      , SDL.V3 0.5 (-0.5) 0.5
       ]
 
   , Model.configTextureCoords = -- Where does each vertex land on the texture?
-      [ GL.Vertex2 0 0
-      , GL.Vertex2 0 0.25
-      , GL.Vertex2 0.25 0.25
-      , GL.Vertex2 0.25 0
+      [ SDL.V2 0 0
+      , SDL.V2 0 0.25
+      , SDL.V2 0.25 0.25
+      , SDL.V2 0.25 0
 
-      , GL.Vertex2 0.25 0
-      , GL.Vertex2 0.5 0
-      , GL.Vertex2 0.5 0.25
-      , GL.Vertex2 0.25 0.25
+      , SDL.V2 0.25 0
+      , SDL.V2 0.5 0
+      , SDL.V2 0.5 0.25
+      , SDL.V2 0.25 0.25
 
-      , GL.Vertex2 0.5 0
-      , GL.Vertex2 0.75 0
-      , GL.Vertex2 0.75 0.25
-      , GL.Vertex2 0.5 0.25
+      , SDL.V2 0.5 0
+      , SDL.V2 0.75 0
+      , SDL.V2 0.75 0.25
+      , SDL.V2 0.5 0.25
 
-      , GL.Vertex2 0.75 0
-      , GL.Vertex2 1 0
-      , GL.Vertex2 1 0.25
-      , GL.Vertex2 0.75 0.25
+      , SDL.V2 0.75 0
+      , SDL.V2 1 0
+      , SDL.V2 1 0.25
+      , SDL.V2 0.75 0.25
 
-      , GL.Vertex2 0.25 0.25
-      , GL.Vertex2 0.25 0.5
-      , GL.Vertex2 0.5 0.5
-      , GL.Vertex2 0.5 0.25
+      , SDL.V2 0.25 0.25
+      , SDL.V2 0.25 0.5
+      , SDL.V2 0.5 0.5
+      , SDL.V2 0.5 0.25
 
-      , GL.Vertex2 0.25 0.25
-      , GL.Vertex2 0.25 0.5
-      , GL.Vertex2 0.5 0.5
-      , GL.Vertex2 0.5 0.25
+      , SDL.V2 0.25 0.25
+      , SDL.V2 0.25 0.5
+      , SDL.V2 0.5 0.5
+      , SDL.V2 0.5 0.25
       ]
   }
