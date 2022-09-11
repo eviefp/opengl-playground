@@ -1,21 +1,36 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE ImportQualifiedPost #-}
+{-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- | Functions for controlling the game loop.
 module Control where
 
+import Control.Concurrent (threadDelay)
 import Control.Monad (unless)
 import SDL qualified
 
--- | Loop the game with the given state-modifying function.
+-- | Loop the game with the given state-modifying function. This function also
+-- caps the frame rate at 60 FPS.
 loop :: state -> ([SDL.Event] -> state -> state) -> (state -> IO ()) -> IO ()
-loop (initial :: state) update render = do
-  events <- SDL.pollEvents
+loop (initial :: state) update render = SDL.ticks >>= go initial . fromIntegral
+  where
+    go :: state -> Int -> IO ()
+    go state previous = do
+      current <- fmap fromIntegral SDL.ticks
 
-  unless (SDL.QuitEvent `elem` map SDL.eventPayload events) do
-    let updated :: state
-        updated = update events initial
+      let difference :: Int
+          difference = 1_000 * (current - previous)
 
-    render updated
-    loop updated update render
+          period :: Int
+          period = 1_000_000 `div` 60
+
+      threadDelay (period - difference)
+      events <- SDL.pollEvents
+
+      unless (SDL.QuitEvent `elem` map SDL.eventPayload events) do
+        let updated :: state
+            updated = update events state
+
+        render updated
+        go updated current
