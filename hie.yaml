@@ -1,0 +1,7 @@
+cradle:
+  cabal:
+    - path: "library"
+      component: "lib:opengl-playground"
+
+    - path: "executable/Main.hs"
+      component: "opengl-playground:exe:opengl-playground"

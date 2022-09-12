@@ -1,38 +1,92 @@
 cabal-version: 2.4
-name: game
+name: opengl-playground
 version: 0.1.0.0
-license: NONE
+license: MIT
 author: Tom Harding
 maintainer: i.am.tom.harding@gmail.com
-category: Game
+category: Graphics
 
 library
-    exposed-modules: Display
+    exposed-modules: Camera
+                     Control
+                     Display
+                     Entity
+                     Maths
                      Model
+                     Object.Parser
                      Renderer
                      Shader
+                     Shader.Program
+                     Shader.Static
                      Texture
-    build-depends: base,
+    build-depends: attoparsec,
+                   base,
                    bytestring,
                    containers,
+                   free,
                    GLUtil,
+                   lens,
                    OpenGL,
                    sdl2 >= 2.5.3,
                    vector
     ghc-options: -Wall -Wextra
     hs-source-dirs: library
     default-language: Haskell2010
+    default-extensions:
+      BangPatterns
+      BlockArguments
+      ConstraintKinds
+      DataKinds
+      DefaultSignatures
+      DeriveDataTypeable
+      DeriveFoldable
+      DeriveFunctor
+      DeriveGeneric
+      DeriveLift
+      DeriveTraversable
+      DerivingVia
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GADTs
+      GeneralizedNewtypeDeriving
+      ImportQualifiedPost
+      InstanceSigs
+      LambdaCase
+      MultiParamTypeClasses
+      NamedFieldPuns
+      -- NoImplicitPrelude
+      OverloadedStrings
+      PackageImports
+      RankNTypes
+      RecordWildCards
+      RoleAnnotations
+      ScopedTypeVariables
+      StandaloneDeriving
+      StandaloneKindSignatures
+      StrictData
+      TupleSections
+      TypeApplications
+      TypeFamilies
+      TypeOperators
+      NoDeepSubsumption
 
-executable game
+executable opengl-playground
     main-is: Main.hs
     build-depends:
         base,
-        bytestring,
-        containers,
-        game,
+        opengl-playground,
         OpenGL,
-        sdl2,
-        vector
+        sdl2
     hs-source-dirs: executable
     default-language: Haskell2010
     ghc-options: -Wall -Wextra
+    default-extensions:
+      BlockArguments
+      ImportQualifiedPost
+      NoDeepSubsumption
+      RecordWildCards
+      ScopedTypeVariables
+      StandaloneKindSignatures
+      TemplateHaskell
+      TypeApplications
