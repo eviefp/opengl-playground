@@ -11,23 +11,23 @@ import SDL qualified
 -- caps the frame rate at 60 FPS.
 loop :: state -> ([SDL.Event] -> state -> state) -> (state -> IO ()) -> IO ()
 loop (initial :: state) update render = SDL.ticks >>= go initial . fromIntegral
-  where
-    go :: state -> Int -> IO ()
-    go state previous = do
-      current <- fmap fromIntegral SDL.ticks
+ where
+  go :: state -> Int -> IO ()
+  go state previous = do
+   current <- fmap fromIntegral SDL.ticks
 
-      let difference :: Int
-          difference = 1_000 * (current - previous)
+   let difference :: Int
+       difference = 1_000 * (current - previous)
 
-          period :: Int
-          period = 1_000_000 `div` 60
+       period :: Int
+       period = 1_000_000 `div` 60
 
-      threadDelay (period - difference)
-      events <- SDL.pollEvents
+   threadDelay (period - difference)
+   events <- SDL.pollEvents
 
-      unless (SDL.QuitEvent `elem` map SDL.eventPayload events) do
-        let updated :: state
-            updated = update events state
+   unless (SDL.QuitEvent `elem` map SDL.eventPayload events) do
+    let updated :: state
+        updated = update events state
 
-        render updated
-        go updated current
+    render updated
+    go updated current
